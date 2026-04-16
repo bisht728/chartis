@@ -1,14 +1,17 @@
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { DARK, CFAColors } from '@/constants/theme';
+import { CFAColors, Theme } from '@/constants/theme';
 import { TOPIC_METADATA } from '@/data/topics';
 import { getQuestionCountByTopic } from '@/db/database';
+import { useThemeContext } from '@/context/theme-context';
 import { TopicMeta } from '@/types';
 
 export default function TopicsScreen() {
+  const { theme } = useThemeContext();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
   const [counts, setCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
@@ -30,7 +33,7 @@ export default function TopicsScreen() {
 
         <View style={styles.grid}>
           {topics.map((topic) => {
-            const color = CFAColors.topic[topic.colorKey] ?? DARK.gold;
+            const color = CFAColors.topic[topic.colorKey] ?? theme.gold;
             return (
               <Pressable
                 key={topic.id}
@@ -56,24 +59,22 @@ export default function TopicsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: DARK.bg },
-  scroll: { padding: 22, gap: 20, paddingBottom: 40 },
-  header: { gap: 4 },
-  title: { fontSize: 28, fontWeight: '800', color: DARK.text },
-  subtitle: { fontSize: 14, color: DARK.textSecondary },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
-  card: {
-    width: '47%',
-    backgroundColor: DARK.card,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: DARK.border,
-    overflow: 'hidden',
-  },
-  colorBar: { height: 3 },
-  cardContent: { padding: 14, gap: 4 },
-  topicName: { fontSize: 15, fontWeight: '700', color: DARK.text },
-  topicFull: { fontSize: 12, color: DARK.textSecondary, lineHeight: 18 },
-  count: { fontSize: 12, fontWeight: '600', marginTop: 4 },
-});
+function makeStyles(t: Theme) {
+  return StyleSheet.create({
+    safe: { flex: 1, backgroundColor: t.bg },
+    scroll: { padding: 22, gap: 20, paddingBottom: 40 },
+    header: { gap: 4 },
+    title: { fontSize: 28, fontWeight: '800', color: t.text },
+    subtitle: { fontSize: 14, color: t.textSecondary },
+    grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
+    card: {
+      width: '47%', backgroundColor: t.card, borderRadius: 14,
+      borderWidth: 1, borderColor: t.border, overflow: 'hidden',
+    },
+    colorBar: { height: 3 },
+    cardContent: { padding: 14, gap: 4 },
+    topicName: { fontSize: 15, fontWeight: '700', color: t.text },
+    topicFull: { fontSize: 12, color: t.textSecondary, lineHeight: 18 },
+    count: { fontSize: 12, fontWeight: '600', marginTop: 4 },
+  });
+}

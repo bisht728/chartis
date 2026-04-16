@@ -1,11 +1,13 @@
 import { router } from 'expo-router';
+import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ChartisLogo } from '@/components/chartis-logo';
 import { ProgressRing } from '@/components/ui/progress-ring';
-import { DARK, CFAColors } from '@/constants/theme';
+import { CFAColors, Theme } from '@/constants/theme';
 import { useProgressContext } from '@/context/progress-context';
+import { useThemeContext } from '@/context/theme-context';
 import { useOverallStats } from '@/hooks/use-progress';
 import { useStreak } from '@/hooks/use-streak';
 import { TOPIC_METADATA } from '@/data/topics';
@@ -27,6 +29,8 @@ const DASHBOARD_TOPICS = [
 ];
 
 export default function DashboardScreen() {
+  const { theme } = useThemeContext();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
   const { state } = useProgressContext();
   const { streak } = useStreak();
   const stats = useOverallStats();
@@ -145,135 +149,62 @@ export default function DashboardScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: DARK.bg },
-  scroll: { padding: 22, gap: 18, paddingBottom: 40 },
+function makeStyles(t: Theme) {
+  return StyleSheet.create({
+    safe: { flex: 1, backgroundColor: t.bg },
+    scroll: { padding: 22, gap: 18, paddingBottom: 40 },
 
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  headerLeft: { gap: 4 },
-  greeting: { fontSize: 13, color: DARK.textSecondary, fontWeight: '500' },
-  avatar: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: DARK.goldDim,
-    borderWidth: 1.5,
-    borderColor: DARK.gold,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarText: { color: DARK.gold, fontSize: 14, fontWeight: '700' },
+    headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+    headerLeft: { gap: 4 },
+    greeting: { fontSize: 13, color: t.textSecondary, fontWeight: '500' },
+    avatar: {
+      width: 42, height: 42, borderRadius: 21,
+      backgroundColor: t.goldDim, borderWidth: 1.5, borderColor: t.gold,
+      alignItems: 'center', justifyContent: 'center',
+    },
+    avatarText: { color: t.gold, fontSize: 14, fontWeight: '700' },
 
-  streakCard: {
-    backgroundColor: DARK.card,
-    borderWidth: 1,
-    borderColor: DARK.border,
-    borderRadius: 16,
-    padding: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  streakLeft: { gap: 2 },
-  streakNum: {
-    fontSize: 48,
-    fontWeight: '800',
-    color: DARK.text,
-    lineHeight: 54,
-  },
-  streakLabel: { fontSize: 14, color: DARK.textSecondary, fontWeight: '500' },
-  streakFire: { fontSize: 40 },
+    streakCard: {
+      backgroundColor: t.card, borderWidth: 1, borderColor: t.border,
+      borderRadius: 16, padding: 20, flexDirection: 'row',
+      alignItems: 'center', justifyContent: 'space-between',
+    },
+    streakLeft: { gap: 2 },
+    streakNum: { fontSize: 48, fontWeight: '800', color: t.text, lineHeight: 54 },
+    streakLabel: { fontSize: 14, color: t.textSecondary, fontWeight: '500' },
+    streakFire: { fontSize: 40 },
 
-  continueCard: {
-    backgroundColor: DARK.card,
-    borderWidth: 1,
-    borderColor: DARK.border,
-    borderRadius: 16,
-    padding: 18,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  continueLeft: { gap: 3 },
-  continueLabel: { fontSize: 11, color: DARK.textSecondary, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.8 },
-  continueTopic: { fontSize: 17, color: DARK.text, fontWeight: '700' },
-  continueArrow: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: DARK.goldDim,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  continueArrowText: { color: DARK.gold, fontSize: 22, fontWeight: '600', marginTop: -2 },
+    continueCard: {
+      backgroundColor: t.card, borderWidth: 1, borderColor: t.border,
+      borderRadius: 16, padding: 18, flexDirection: 'row',
+      alignItems: 'center', justifyContent: 'space-between',
+    },
+    continueLeft: { gap: 3 },
+    continueLabel: { fontSize: 11, color: t.textSecondary, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.8 },
+    continueTopic: { fontSize: 17, color: t.text, fontWeight: '700' },
+    continueArrow: {
+      width: 32, height: 32, borderRadius: 16,
+      backgroundColor: t.goldDim, alignItems: 'center', justifyContent: 'center',
+    },
+    continueArrowText: { color: t.gold, fontSize: 22, fontWeight: '600', marginTop: -2 },
 
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: -6,
-  },
-  sectionTitle: { fontSize: 12, color: DARK.textSecondary, fontWeight: '700', letterSpacing: 1.2 },
-  sectionLink: { fontSize: 13, color: DARK.gold, fontWeight: '600' },
+    sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: -6 },
+    sectionTitle: { fontSize: 12, color: t.textSecondary, fontWeight: '700', letterSpacing: 1.2 },
+    sectionLink: { fontSize: 13, color: t.gold, fontWeight: '600' },
 
-  topicsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
+    topicsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
+    topicCard: {
+      width: '47%', backgroundColor: t.card, borderWidth: 1,
+      borderColor: t.border, borderRadius: 14, padding: 14, gap: 12,
+    },
+    topicIconDot: { width: 38, height: 38, borderRadius: 10, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+    topicIconText: { fontSize: 12, fontWeight: '800' },
+    topicCardBottom: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' },
+    topicCardName: { fontSize: 13, color: t.text, fontWeight: '600', flex: 1, lineHeight: 18 },
+    topicCardPct: { fontSize: 20, fontWeight: '800', marginLeft: 8 },
+    topicRingWrap: { position: 'absolute', bottom: 14, right: 14 },
 
-  topicCard: {
-    width: '47%',
-    backgroundColor: DARK.card,
-    borderWidth: 1,
-    borderColor: DARK.border,
-    borderRadius: 14,
-    padding: 14,
-    gap: 12,
-  },
-  topicIconDot: {
-    width: 38,
-    height: 38,
-    borderRadius: 10,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  topicIconText: { fontSize: 12, fontWeight: '800' },
-  topicCardBottom: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
-  },
-  topicCardName: {
-    fontSize: 13,
-    color: DARK.text,
-    fontWeight: '600',
-    flex: 1,
-    lineHeight: 18,
-  },
-  topicCardPct: {
-    fontSize: 20,
-    fontWeight: '800',
-    marginLeft: 8,
-  },
-  topicRingWrap: {
-    position: 'absolute',
-    bottom: 14,
-    right: 14,
-  },
-
-  startBtn: {
-    backgroundColor: DARK.gold,
-    borderRadius: 14,
-    paddingVertical: 17,
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  startBtnText: {
-    color: '#0d0f14',
-    fontSize: 16,
-    fontWeight: '800',
-    letterSpacing: 0.3,
-  },
-});
+    startBtn: { backgroundColor: t.gold, borderRadius: 14, paddingVertical: 17, alignItems: 'center', marginTop: 4 },
+    startBtnText: { color: '#0d0f14', fontSize: 16, fontWeight: '800', letterSpacing: 0.3 },
+  });
+}

@@ -1,11 +1,12 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AnswerOption } from '@/components/ui/answer-option';
-import { DARK, CFAColors } from '@/constants/theme';
+import { CFAColors, Theme } from '@/constants/theme';
 import { useProgressContext } from '@/context/progress-context';
+import { useThemeContext } from '@/context/theme-context';
 import { useStreak } from '@/hooks/use-streak';
 import { getRandomQuestions } from '@/db/database';
 import { fetchQuestions, QuestionFilters } from '@/services/questions';
@@ -15,6 +16,8 @@ import { TOPIC_METADATA } from '@/data/topics';
 const DEFAULT_SESSION_SIZE = 10;
 
 export default function SessionScreen() {
+  const { theme } = useThemeContext();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
   const { topic, module: moduleParam, difficulty, type, size } =
     useLocalSearchParams<{
       topic?: string;
@@ -213,96 +216,31 @@ export default function SessionScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: DARK.bg },
-  scroll: { padding: 22, gap: 20, paddingBottom: 48 },
-
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  topicBadge: {
-    borderRadius: 999,
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-  },
-  topicBadgeText: {
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 0.8,
-  },
-  counter: {
-    fontSize: 13,
-    color: DARK.textSecondary,
-    fontWeight: '600',
-  },
-
-  progressTrack: {
-    height: 3,
-    backgroundColor: DARK.border,
-    borderRadius: 2,
-    overflow: 'hidden',
-    marginTop: -8,
-  },
-  progressFill: {
-    height: 3,
-    backgroundColor: DARK.gold,
-    borderRadius: 2,
-  },
-
-  questionText: {
-    fontSize: 16,
-    lineHeight: 26,
-    color: DARK.text,
-    fontWeight: '400',
-  },
-
-  options: { gap: 10 },
-
-  explanationBox: {
-    backgroundColor: DARK.card,
-    borderWidth: 1,
-    borderColor: DARK.border,
-    borderRadius: 14,
-    padding: 16,
-    gap: 8,
-  },
-  explanationTitle: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: DARK.gold,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  explanationText: {
-    fontSize: 14,
-    lineHeight: 22,
-    color: DARK.textSecondary,
-  },
-
-  goldBtn: {
-    backgroundColor: DARK.gold,
-    borderRadius: 14,
-    paddingVertical: 17,
-    alignItems: 'center',
-  },
-  goldBtnText: {
-    color: '#0d0f14',
-    fontSize: 16,
-    fontWeight: '800',
-    letterSpacing: 0.3,
-  },
-
-  empty: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 16, padding: 40 },
-  emptyText: { fontSize: 16, color: DARK.textSecondary, textAlign: 'center' },
-  backBtn: { padding: 14, borderRadius: 12, backgroundColor: DARK.card, borderWidth: 1, borderColor: DARK.border },
-  backBtnText: { fontSize: 15, fontWeight: '600', color: DARK.text },
-
-  done: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 14, padding: 40 },
-  doneEmoji: { fontSize: 48, color: DARK.correct, fontWeight: '800' },
-  doneTitle: { fontSize: 26, fontWeight: '800', color: DARK.text },
-  doneScore: { fontSize: 40, fontWeight: '800', color: DARK.text },
-  doneAccuracy: { fontSize: 18, fontWeight: '600' },
-});
+function makeStyles(t: Theme) {
+  return StyleSheet.create({
+    safe: { flex: 1, backgroundColor: t.bg },
+    scroll: { padding: 22, gap: 20, paddingBottom: 48 },
+    topRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    topicBadge: { borderRadius: 999, borderWidth: 1, paddingHorizontal: 10, paddingVertical: 5 },
+    topicBadgeText: { fontSize: 11, fontWeight: '700', letterSpacing: 0.8 },
+    counter: { fontSize: 13, color: t.textSecondary, fontWeight: '600' },
+    progressTrack: { height: 3, backgroundColor: t.border, borderRadius: 2, overflow: 'hidden', marginTop: -8 },
+    progressFill: { height: 3, backgroundColor: t.gold, borderRadius: 2 },
+    questionText: { fontSize: 16, lineHeight: 26, color: t.text, fontWeight: '400' },
+    options: { gap: 10 },
+    explanationBox: { backgroundColor: t.card, borderWidth: 1, borderColor: t.border, borderRadius: 14, padding: 16, gap: 8 },
+    explanationTitle: { fontSize: 11, fontWeight: '700', color: t.gold, textTransform: 'uppercase', letterSpacing: 1 },
+    explanationText: { fontSize: 14, lineHeight: 22, color: t.textSecondary },
+    goldBtn: { backgroundColor: t.gold, borderRadius: 14, paddingVertical: 17, alignItems: 'center' },
+    goldBtnText: { color: '#0d0f14', fontSize: 16, fontWeight: '800', letterSpacing: 0.3 },
+    empty: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 16, padding: 40 },
+    emptyText: { fontSize: 16, color: t.textSecondary, textAlign: 'center' },
+    backBtn: { padding: 14, borderRadius: 12, backgroundColor: t.card, borderWidth: 1, borderColor: t.border },
+    backBtnText: { fontSize: 15, fontWeight: '600', color: t.text },
+    done: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 14, padding: 40 },
+    doneEmoji: { fontSize: 48, color: t.correct, fontWeight: '800' },
+    doneTitle: { fontSize: 26, fontWeight: '800', color: t.text },
+    doneScore: { fontSize: 40, fontWeight: '800', color: t.text },
+    doneAccuracy: { fontSize: 18, fontWeight: '600' },
+  });
+}

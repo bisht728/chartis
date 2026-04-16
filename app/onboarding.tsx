@@ -1,12 +1,17 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
+import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ChartisLogo } from '@/components/chartis-logo';
-import { DARK } from '@/constants/theme';
+import { Theme } from '@/constants/theme';
+import { useThemeContext } from '@/context/theme-context';
 
 export default function OnboardingScreen() {
+  const { theme } = useThemeContext();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
+
   async function handleStartTrial() {
     await AsyncStorage.setItem('chartis:onboarded', 'true');
     router.replace('/(tabs)');
@@ -75,99 +80,29 @@ export default function OnboardingScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: DARK.bg,
-  },
-  scroll: {
-    padding: 28,
-    paddingTop: 32,
-    gap: 28,
-    flexGrow: 1,
-    justifyContent: 'center',
-  },
-  badge: {
-    alignSelf: 'flex-start',
-    backgroundColor: DARK.goldDim,
-    borderWidth: 1,
-    borderColor: DARK.gold,
-    borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-  },
-  badgeText: {
-    color: DARK.gold,
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 1.2,
-  },
-  headlineBlock: {
-    gap: 2,
-    marginTop: -4,
-  },
-  headlineLine: {
-    fontSize: 44,
-    fontWeight: '800',
-    color: DARK.text,
-    lineHeight: 52,
-    letterSpacing: -1,
-  },
-  headlineGold: {
-    color: DARK.gold,
-    fontStyle: 'italic',
-  },
-  subtitle: {
-    fontSize: 15,
-    lineHeight: 24,
-    color: DARK.textSecondary,
-    marginTop: -8,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  statCard: {
-    flex: 1,
-    backgroundColor: DARK.card,
-    borderWidth: 1,
-    borderColor: DARK.border,
-    borderRadius: 14,
-    paddingVertical: 16,
-    paddingHorizontal: 10,
-    alignItems: 'center',
-    gap: 4,
-  },
-  statValue: {
-    fontSize: 26,
-    fontWeight: '800',
-    color: DARK.text,
-  },
-  statLabel: {
-    fontSize: 11,
-    color: DARK.textSecondary,
-    fontWeight: '500',
-    textAlign: 'center',
-  },
-  trialBtn: {
-    backgroundColor: DARK.gold,
-    borderRadius: 14,
-    paddingVertical: 17,
-    alignItems: 'center',
-  },
-  trialBtnText: {
-    color: '#0d0f14',
-    fontSize: 16,
-    fontWeight: '800',
-    letterSpacing: 0.3,
-  },
-  loginLink: {
-    alignItems: 'center',
-    paddingVertical: 4,
-    marginTop: -12,
-  },
-  loginLinkText: {
-    color: DARK.textSecondary,
-    fontSize: 14,
-  },
-});
+function makeStyles(t: Theme) {
+  return StyleSheet.create({
+    safe: { flex: 1, backgroundColor: t.bg },
+    scroll: { padding: 28, paddingTop: 32, gap: 28, flexGrow: 1, justifyContent: 'center' },
+    badge: {
+      alignSelf: 'flex-start', backgroundColor: t.goldDim, borderWidth: 1,
+      borderColor: t.gold, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 5,
+    },
+    badgeText: { color: t.gold, fontSize: 11, fontWeight: '700', letterSpacing: 1.2 },
+    headlineBlock: { gap: 2, marginTop: -4 },
+    headlineLine: { fontSize: 44, fontWeight: '800', color: t.text, lineHeight: 52, letterSpacing: -1 },
+    headlineGold: { color: t.gold, fontStyle: 'italic' },
+    subtitle: { fontSize: 15, lineHeight: 24, color: t.textSecondary, marginTop: -8 },
+    statsRow: { flexDirection: 'row', gap: 10 },
+    statCard: {
+      flex: 1, backgroundColor: t.card, borderWidth: 1, borderColor: t.border,
+      borderRadius: 14, paddingVertical: 16, paddingHorizontal: 10, alignItems: 'center', gap: 4,
+    },
+    statValue: { fontSize: 26, fontWeight: '800', color: t.text },
+    statLabel: { fontSize: 11, color: t.textSecondary, fontWeight: '500', textAlign: 'center' },
+    trialBtn: { backgroundColor: t.gold, borderRadius: 14, paddingVertical: 17, alignItems: 'center' },
+    trialBtnText: { color: '#0d0f14', fontSize: 16, fontWeight: '800', letterSpacing: 0.3 },
+    loginLink: { alignItems: 'center', paddingVertical: 4, marginTop: -12 },
+    loginLinkText: { color: t.textSecondary, fontSize: 14 },
+  });
+}

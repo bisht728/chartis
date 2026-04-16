@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useThemeContext } from '@/context/theme-context';
 import { AnswerKey } from '../../types';
-import { DARK } from '../../constants/theme';
 
 type AnswerState = 'idle' | 'selected' | 'correct' | 'incorrect';
 
@@ -13,44 +13,18 @@ interface Props {
 }
 
 export function AnswerOption({ answerKey, text, state, onPress, disabled }: Props) {
-  const isCorrect = state === 'correct';
+  const { theme: t } = useThemeContext();
+
+  const isCorrect   = state === 'correct';
   const isIncorrect = state === 'incorrect';
-  const isSelected = state === 'selected';
-  const isActive = isCorrect || isIncorrect || isSelected;
+  const isSelected  = state === 'selected';
+  const isActive    = isCorrect || isIncorrect || isSelected;
 
-  const borderColor = isCorrect
-    ? DARK.correct
-    : isIncorrect
-    ? DARK.incorrect
-    : isSelected
-    ? DARK.gold
-    : DARK.border;
-
-  const bgColor = isCorrect
-    ? DARK.correctDim
-    : isIncorrect
-    ? DARK.incorrectDim
-    : isSelected
-    ? DARK.goldDim
-    : DARK.card;
-
-  const dotBg = isCorrect
-    ? DARK.correct
-    : isIncorrect
-    ? DARK.incorrect
-    : isSelected
-    ? DARK.gold
-    : 'transparent';
-
-  const dotBorder = isCorrect
-    ? DARK.correct
-    : isIncorrect
-    ? DARK.incorrect
-    : isSelected
-    ? DARK.gold
-    : DARK.borderLight;
-
-  const dotTextColor = isActive ? '#0d0f14' : DARK.textSecondary;
+  const borderColor = isCorrect ? t.correct : isIncorrect ? t.incorrect : isSelected ? t.gold : t.border;
+  const bgColor     = isCorrect ? t.correctDim : isIncorrect ? t.incorrectDim : isSelected ? t.goldDim : t.card;
+  const dotBg       = isCorrect ? t.correct : isIncorrect ? t.incorrect : isSelected ? t.gold : 'transparent';
+  const dotBorder   = isCorrect ? t.correct : isIncorrect ? t.incorrect : isSelected ? t.gold : t.borderLight;
+  const dotTextColor = isActive ? '#0d0f14' : t.textSecondary;
 
   return (
     <Pressable
@@ -60,7 +34,7 @@ export function AnswerOption({ answerKey, text, state, onPress, disabled }: Prop
       <View style={[styles.dot, { backgroundColor: dotBg, borderColor: dotBorder }]}>
         <Text style={[styles.dotText, { color: dotTextColor }]}>{answerKey}</Text>
       </View>
-      <Text style={[styles.text, { color: isActive ? DARK.text : DARK.textSecondary }]}>
+      <Text style={[styles.text, { color: isActive ? t.text : t.textSecondary }]}>
         {text}
       </Text>
     </Pressable>
@@ -86,14 +60,6 @@ const styles = StyleSheet.create({
     flexShrink: 0,
     marginTop: 1,
   },
-  dotText: {
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  text: {
-    flex: 1,
-    fontSize: 15,
-    lineHeight: 23,
-    fontWeight: '400',
-  },
+  dotText: { fontSize: 12, fontWeight: '700' },
+  text: { flex: 1, fontSize: 15, lineHeight: 23, fontWeight: '400' },
 });

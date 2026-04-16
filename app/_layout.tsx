@@ -5,14 +5,24 @@ import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 
 import { ProgressProvider } from '@/context/progress-context';
-import { DARK } from '@/constants/theme';
+import { ThemeProvider, useThemeContext } from '@/context/theme-context';
 
 export const unstable_settings = {
   anchor: '(tabs)',
 };
 
 export default function RootLayout() {
-  // null = still loading, true/false = resolved
+  return (
+    <ThemeProvider>
+      <ProgressProvider>
+        <RootLayoutInner />
+      </ProgressProvider>
+    </ThemeProvider>
+  );
+}
+
+function RootLayoutInner() {
+  const { theme, isDark } = useThemeContext();
   const [isOnboarded, setIsOnboarded] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -22,15 +32,15 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <ProgressProvider>
+    <>
       {isOnboarded === false && <Redirect href="/onboarding" />}
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: DARK.bg } }}>
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.bg } }}>
         <Stack.Screen name="onboarding" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="study" />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
       </Stack>
-      <StatusBar style="light" />
-    </ProgressProvider>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
+    </>
   );
 }

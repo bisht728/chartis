@@ -49,6 +49,32 @@ export const DARK = {
   tabBorder: '#1e2130',
 };
 
+export const LIGHT = {
+  bg: '#F5F6FA',
+  card: '#FFFFFF',
+  cardAlt: '#EEF0F7',
+  border: '#DDE0EB',
+  borderLight: '#E8EAF2',
+
+  gold: '#B8903E',
+  goldDim: '#B8903E18',
+  goldText: '#9A7530',
+
+  text: '#0D0F14',
+  textSecondary: '#4A5068',
+  textMuted: '#8A8FA3',
+
+  correct: '#16A34A',
+  correctDim: '#16A34A18',
+  incorrect: '#DC2626',
+  incorrectDim: '#DC262618',
+
+  tabBar: '#FFFFFF',
+  tabBorder: '#DDE0EB',
+};
+
+export type Theme = typeof DARK;
+
 export const CFA_BRAND = {
   primary: '#002C5F',
   secondary: '#0078A8',

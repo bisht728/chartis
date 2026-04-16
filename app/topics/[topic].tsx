@@ -1,12 +1,12 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { DARK, CFAColors } from '@/constants/theme';
+import { CFAColors, Theme } from '@/constants/theme';
 import { TOPIC_METADATA } from '@/data/topics';
-import { fetchFilteredCount, fetchModulesForTopic } from '@/services/questions';
-import { QuestionFilters } from '@/services/questions';
+import { fetchFilteredCount, fetchModulesForTopic, QuestionFilters } from '@/services/questions';
+import { useThemeContext } from '@/context/theme-context';
 
 const DIFFICULTIES: { label: string; value: string; color?: string }[] = [
   { label: 'All',    value: '' },
@@ -24,9 +24,11 @@ const TYPES = [
 const SESSION_SIZES = [5, 10, 15, 20];
 
 export default function TopicFilterScreen() {
+  const { theme } = useThemeContext();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
   const { topic } = useLocalSearchParams<{ topic: string }>();
   const meta = TOPIC_METADATA.find((t) => t.id === topic);
-  const topicColor = meta ? (CFAColors.topic[meta.colorKey] ?? DARK.gold) : DARK.gold;
+  const topicColor = meta ? (CFAColors.topic[meta.colorKey] ?? theme.gold) : theme.gold;
 
   const [modules, setModules] = useState<string[]>([]);
   const [loadingModules, setLoadingModules] = useState(true);
@@ -163,7 +165,7 @@ export default function TopicFilterScreen() {
             <ActivityIndicator size="small" color={topicColor} />
           ) : matchCount !== null ? (
             <Text style={styles.summaryText}>
-              <Text style={[styles.summaryCount, { color: matchCount > 0 ? topicColor : DARK.incorrect }]}>
+              <Text style={[styles.summaryCount, { color: matchCount > 0 ? topicColor : theme.incorrect }]}>
                 {matchCount}
               </Text>
               {' '}question{matchCount !== 1 ? 's' : ''} match your filters
@@ -173,11 +175,11 @@ export default function TopicFilterScreen() {
 
         {/* Start button */}
         <Pressable
-          style={[styles.startBtn, { backgroundColor: canStart ? topicColor : DARK.card }]}
+          style={[styles.startBtn, { backgroundColor: canStart ? topicColor : theme.card }]}
           onPress={handleStart}
           disabled={!canStart}
         >
-          <Text style={[styles.startBtnText, { color: canStart ? '#0d0f14' : DARK.textMuted }]}>
+          <Text style={[styles.startBtnText, { color: canStart ? '#0d0f14' : theme.textMuted }]}>
             {!canStart
               ? 'No questions match'
               : `Start Session · ${effectiveCount} question${effectiveCount !== 1 ? 's' : ''}`}
@@ -197,56 +199,46 @@ function Chip({
   color: string;
   onPress: () => void;
 }) {
+  const { theme: t } = useThemeContext();
   return (
     <Pressable
       onPress={onPress}
       style={[
-        styles.chip,
+        chipStyles(t),
         selected && { backgroundColor: color + '22', borderColor: color },
       ]}
     >
-      <Text style={[styles.chipText, selected && { color, fontWeight: '700' }]}>{label}</Text>
+      <Text style={[chipTextStyle(t), selected && { color, fontWeight: '700' as const }]}>
+        {label}
+      </Text>
     </Pressable>
   );
 }
 
-const styles = StyleSheet.create({
-  safe:   { flex: 1, backgroundColor: DARK.bg },
-  scroll: { padding: 22, gap: 28, paddingBottom: 48 },
-
-  header: { borderLeftWidth: 3, paddingLeft: 12, gap: 4 },
-  title:  { fontSize: 26, fontWeight: '800' },
-  subtitle: { fontSize: 14, color: DARK.textSecondary },
-
-  section: { gap: 12 },
-  sectionLabel: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: DARK.textSecondary,
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
-  },
-
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-
-  chip: {
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: DARK.border,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    backgroundColor: DARK.card,
-  },
-  chipText: { fontSize: 13, fontWeight: '500', color: DARK.textSecondary },
-
-  summaryRow: { alignItems: 'center', minHeight: 24 },
-  summaryText: { fontSize: 14, color: DARK.textSecondary },
-  summaryCount: { fontSize: 16, fontWeight: '800' },
-
-  startBtn: {
-    borderRadius: 14,
-    paddingVertical: 18,
-    alignItems: 'center',
-  },
-  startBtnText: { fontSize: 16, fontWeight: '800', letterSpacing: 0.3 },
+const chipStyles = (t: Theme) => ({
+  borderRadius: 999, borderWidth: 1, borderColor: t.border,
+  paddingHorizontal: 14, paddingVertical: 8, backgroundColor: t.card,
 });
+const chipTextStyle = (t: Theme) => ({
+  fontSize: 13, fontWeight: '500' as const, color: t.textSecondary,
+});
+
+function makeStyles(t: Theme) {
+  return StyleSheet.create({
+    safe:   { flex: 1, backgroundColor: t.bg },
+    scroll: { padding: 22, gap: 28, paddingBottom: 48 },
+    header: { borderLeftWidth: 3, paddingLeft: 12, gap: 4 },
+    title:  { fontSize: 26, fontWeight: '800' },
+    subtitle: { fontSize: 14, color: t.textSecondary },
+    section: { gap: 12 },
+    sectionLabel: { fontSize: 11, fontWeight: '700', color: t.textSecondary, letterSpacing: 1.2, textTransform: 'uppercase' },
+    chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+    chip: { borderRadius: 999, borderWidth: 1, borderColor: t.border, paddingHorizontal: 14, paddingVertical: 8, backgroundColor: t.card },
+    chipText: { fontSize: 13, fontWeight: '500', color: t.textSecondary },
+    summaryRow: { alignItems: 'center', minHeight: 24 },
+    summaryText: { fontSize: 14, color: t.textSecondary },
+    summaryCount: { fontSize: 16, fontWeight: '800' },
+    startBtn: { borderRadius: 14, paddingVertical: 18, alignItems: 'center' },
+    startBtnText: { fontSize: 16, fontWeight: '800', letterSpacing: 0.3 },
+  });
+}
