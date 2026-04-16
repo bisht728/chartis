@@ -66,6 +66,28 @@ export default function DashboardScreen() {
             <Text style={styles.streakNum}>{streak.currentStreak}</Text>
             <Text style={styles.streakLabel}>day streak</Text>
           </View>
+          <View style={styles.streakDivider} />
+          <View style={styles.streakStats}>
+            <View style={styles.streakStatItem}>
+              <Text style={styles.streakStatValue}>{stats.totalAttempted}</Text>
+              <Text style={styles.streakStatLabel}>Answered</Text>
+            </View>
+            <View style={styles.streakStatItem}>
+              <ProgressRing
+                percent={stats.accuracyPercent}
+                size={44}
+                strokeWidth={5}
+                color={theme.gold}
+                trackColor={theme.border}
+                showLabel={stats.totalAttempted > 0}
+              />
+              <Text style={styles.streakStatLabel}>Accuracy</Text>
+            </View>
+            <View style={styles.streakStatItem}>
+              <Text style={styles.streakStatValue}>{stats.topicsStudied}</Text>
+              <Text style={styles.streakStatLabel}>Topics</Text>
+            </View>
+          </View>
           <Text style={styles.streakFire}>🔥</Text>
         </Pressable>
 
@@ -100,7 +122,7 @@ export default function DashboardScreen() {
             const meta = TOPIC_METADATA.find((t) => t.id === topicId)!;
             const tp = state.topicProgress[topicId];
             const pct = tp?.accuracyPercent ?? 0;
-            const topicColor = CFAColors.topic[meta.colorKey] ?? DARK.gold;
+            const topicColor = CFAColors.topic[meta.colorKey] ?? theme.gold;
 
             return (
               <Pressable
@@ -110,27 +132,22 @@ export default function DashboardScreen() {
                   router.push({ pathname: '/topics/[topic]', params: { topic: topicId } })
                 }
               >
-                <View style={[styles.topicIconDot, { backgroundColor: topicColor + '33', borderColor: topicColor + '55' }]}>
-                  <Text style={[styles.topicIconText, { color: topicColor }]}>
-                    {meta.shortName.slice(0, 2).toUpperCase()}
-                  </Text>
-                </View>
-                <View style={styles.topicCardBottom}>
-                  <Text style={styles.topicCardName} numberOfLines={2}>{meta.shortName}</Text>
-                  <Text style={[styles.topicCardPct, { color: pct > 0 ? DARK.gold : DARK.textMuted }]}>
-                    {pct > 0 ? `${pct}%` : '—'}
-                  </Text>
-                </View>
-                <View style={styles.topicRingWrap}>
+                <View style={styles.topicCardTop}>
+                  <View style={[styles.topicIconDot, { backgroundColor: topicColor + '33', borderColor: topicColor + '55' }]}>
+                    <Text style={[styles.topicIconText, { color: topicColor }]}>
+                      {meta.shortName.slice(0, 2).toUpperCase()}
+                    </Text>
+                  </View>
                   <ProgressRing
                     percent={pct}
                     size={36}
                     strokeWidth={4}
                     color={topicColor}
-                    trackColor={DARK.border}
-                    showLabel={false}
+                    trackColor={theme.border}
+                    showLabel={pct > 0}
                   />
                 </View>
+                <Text style={styles.topicCardName} numberOfLines={2}>{meta.displayName}</Text>
               </Pressable>
             );
           })}
@@ -170,9 +187,14 @@ function makeStyles(t: Theme) {
       alignItems: 'center', justifyContent: 'space-between',
     },
     streakLeft: { gap: 2 },
-    streakNum: { fontSize: 48, fontWeight: '800', color: t.text, lineHeight: 54 },
-    streakLabel: { fontSize: 14, color: t.textSecondary, fontWeight: '500' },
-    streakFire: { fontSize: 40 },
+    streakNum: { fontSize: 42, fontWeight: '800', color: t.text, lineHeight: 48 },
+    streakLabel: { fontSize: 13, color: t.textSecondary, fontWeight: '500' },
+    streakFire: { fontSize: 32, alignSelf: 'flex-start' },
+    streakDivider: { width: 1, height: '80%', backgroundColor: t.border, marginHorizontal: 4 },
+    streakStats: { flex: 1, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' },
+    streakStatItem: { alignItems: 'center', gap: 4 },
+    streakStatValue: { fontSize: 22, fontWeight: '800', color: t.text },
+    streakStatLabel: { fontSize: 10, color: t.textSecondary, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5 },
 
     continueCard: {
       backgroundColor: t.card, borderWidth: 1, borderColor: t.border,
@@ -197,12 +219,13 @@ function makeStyles(t: Theme) {
       width: '47%', backgroundColor: t.card, borderWidth: 1,
       borderColor: t.border, borderRadius: 14, padding: 14, gap: 12,
     },
+    topicCardTop: {
+      flexDirection: 'row', alignItems: 'center',
+      justifyContent: 'space-between',
+    },
     topicIconDot: { width: 38, height: 38, borderRadius: 10, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
     topicIconText: { fontSize: 12, fontWeight: '800' },
-    topicCardBottom: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' },
-    topicCardName: { fontSize: 13, color: t.text, fontWeight: '600', flex: 1, lineHeight: 18 },
-    topicCardPct: { fontSize: 20, fontWeight: '800', marginLeft: 8 },
-    topicRingWrap: { position: 'absolute', bottom: 14, right: 14 },
+    topicCardName: { fontSize: 13, color: t.text, fontWeight: '600', lineHeight: 18 },
 
     startBtn: { backgroundColor: t.gold, borderRadius: 14, paddingVertical: 17, alignItems: 'center', marginTop: 4 },
     startBtnText: { color: '#0d0f14', fontSize: 16, fontWeight: '800', letterSpacing: 0.3 },

@@ -22,6 +22,7 @@ export default function ProgressScreen() {
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Progress</Text>
 
+        {/* Overall stats */}
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
             <Text style={styles.statValue}>{stats.totalAttempted}</Text>
@@ -44,6 +45,7 @@ export default function ProgressScreen() {
         </View>
 
         <Text style={styles.sectionTitle}>BY TOPIC</Text>
+
         <View style={styles.topicList}>
           {TOPIC_METADATA.map((meta) => {
             const tp = state.topicProgress[meta.id];
@@ -52,12 +54,11 @@ export default function ProgressScreen() {
             const color = CFAColors.topic[meta.colorKey] ?? theme.gold;
 
             return (
-              <View key={meta.id} style={styles.topicRow}>
-                <View style={[styles.topicDot, { backgroundColor: color }]} />
+              <View key={meta.id} style={[styles.topicRow, { borderLeftColor: color }]}>
                 <View style={styles.topicInfo}>
-                  <Text style={styles.topicName}>{meta.shortName}</Text>
+                  <Text style={styles.topicName}>{meta.displayName}</Text>
                   <Text style={styles.topicAttempted}>
-                    {attempted === 0 ? 'Not started' : `${attempted} attempted`}
+                    {attempted === 0 ? 'Not started' : `${attempted} attempted · ${accuracy}% accuracy`}
                   </Text>
                 </View>
                 <ProgressRing
@@ -92,16 +93,25 @@ function makeStyles(t: Theme) {
     statValue: { fontSize: 28, fontWeight: '800', color: t.text },
     statLabel: { fontSize: 11, color: t.textSecondary, fontWeight: '600', textAlign: 'center' },
 
-    sectionTitle: { fontSize: 12, fontWeight: '700', color: t.textSecondary, letterSpacing: 1.2, marginBottom: -8 },
+    sectionTitle: {
+      fontSize: 12, fontWeight: '700', color: t.textSecondary,
+      letterSpacing: 1.2, marginBottom: -8,
+    },
     topicList: { gap: 8 },
     topicRow: {
-      flexDirection: 'row', alignItems: 'center',
-      backgroundColor: t.card, borderWidth: 1, borderColor: t.border,
-      borderRadius: 12, padding: 14, gap: 12,
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: t.card,
+      borderWidth: 1,
+      borderColor: t.border,
+      borderLeftWidth: 3,
+      borderRadius: 12,
+      paddingVertical: 14,
+      paddingHorizontal: 16,
+      gap: 12,
     },
-    topicDot: { width: 10, height: 10, borderRadius: 5 },
-    topicInfo: { flex: 1, gap: 2 },
-    topicName: { fontSize: 15, fontWeight: '600', color: t.text },
+    topicInfo: { flex: 1, gap: 3 },
+    topicName: { fontSize: 14, fontWeight: '600', color: t.text },
     topicAttempted: { fontSize: 12, color: t.textSecondary },
   });
 }

@@ -25,12 +25,15 @@ export interface Question {
   correctAnswer: AnswerKey;
   hint: string;
   explanation: string;
+  wrongAnswerExplanations: Partial<Record<AnswerKey, string>>;
 }
 
 export interface TopicMeta {
   id: CFATopic;
   displayName: string;
   shortName: string;
+  supabaseName: string;
+  examWeight: string;
   colorKey: string;
   iconName: string;
   questionCount: number;

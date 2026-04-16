@@ -2,20 +2,20 @@ import { TOPIC_METADATA } from '@/data/topics';
 import { supabase } from '@/lib/supabase';
 import { AnswerKey, CFATopic, Difficulty, Question } from '@/types';
 
-// Supabase stores short names (e.g. "Quant") — map to/from CFATopic enum values
+// Maps between the exact Supabase topic strings and the internal CFATopic enum values
 const SUPABASE_TO_CFTOPIC = Object.fromEntries(
-  TOPIC_METADATA.map((t) => [t.shortName, t.id])
+  TOPIC_METADATA.map((t) => [t.supabaseName, t.id])
 ) as Record<string, CFATopic>;
 
 const CFTOPIC_TO_SUPABASE = Object.fromEntries(
-  TOPIC_METADATA.map((t) => [t.id, t.shortName])
+  TOPIC_METADATA.map((t) => [t.id, t.supabaseName])
 ) as Record<string, string>;
 
 // Shape of a row in the Supabase questions table
 interface SupabaseQuestion {
   id: number;
   qualification: string;
-  level: number;
+  level: string;
   topic: string;
   module: string;
   module_number: number;
@@ -28,6 +28,7 @@ interface SupabaseQuestion {
   option_d: string;
   correct_answer: string;
   explanation: string;
+  wrong_answer_explanations: Partial<Record<string, string>> | null;
 }
 
 export interface QuestionFilters {
@@ -60,11 +61,16 @@ function mapRow(row: SupabaseQuestion): Question {
     correctAnswer: row.correct_answer as AnswerKey,
     hint: '',
     explanation: row.explanation,
+    wrongAnswerExplanations: (row.wrong_answer_explanations ?? {}) as Partial<Record<AnswerKey, string>>,
   };
 }
 
 export async function fetchQuestions(filters: QuestionFilters = {}): Promise<Question[]> {
-  let query = supabase.from('questions').select('*');
+  let query = supabase
+    .from('questions')
+    .select('*, wrong_answer_explanations')
+    .eq('qualification', 'CFA')
+    .eq('level', 'Level 1');
 
   if (filters.topic)      query = query.eq('topic', CFTOPIC_TO_SUPABASE[filters.topic] ?? filters.topic);
   if (filters.module)     query = query.eq('module', filters.module);
@@ -79,7 +85,9 @@ export async function fetchQuestions(filters: QuestionFilters = {}): Promise<Que
 export async function fetchQuestionById(id: string): Promise<Question | null> {
   const { data, error } = await supabase
     .from('questions')
-    .select('*')
+    .select('*, wrong_answer_explanations')
+    .eq('qualification', 'CFA')
+    .eq('level', 'Level 1')
     .eq('id', id)
     .single();
 
@@ -92,6 +100,8 @@ export async function fetchModulesForTopic(topic: string): Promise<string[]> {
   const { data, error } = await supabase
     .from('questions')
     .select('module, module_number')
+    .eq('qualification', 'CFA')
+    .eq('level', 'Level 1')
     .eq('topic', supabaseTopic)
     .order('module_number');
 
@@ -110,7 +120,11 @@ export async function fetchModulesForTopic(topic: string): Promise<string[]> {
 }
 
 export async function fetchFilteredCount(filters: QuestionFilters): Promise<number> {
-  let query = supabase.from('questions').select('*', { count: 'exact', head: true });
+  let query = supabase
+    .from('questions')
+    .select('*', { count: 'exact', head: true })
+    .eq('qualification', 'CFA')
+    .eq('level', 'Level 1');
 
   if (filters.topic)      query = query.eq('topic', CFTOPIC_TO_SUPABASE[filters.topic] ?? filters.topic);
   if (filters.module)     query = query.eq('module', filters.module);
@@ -123,12 +137,18 @@ export async function fetchFilteredCount(filters: QuestionFilters): Promise<numb
 }
 
 export async function fetchQuestionCountByTopic(): Promise<Record<string, number>> {
-  const { data, error } = await supabase.from('questions').select('topic');
+  const { data, error } = await supabase
+    .from('questions')
+    .select('topic')
+    .eq('qualification', 'CFA')
+    .eq('level', 'Level 1');
   if (error) throw new Error(error.message);
 
   const counts: Record<string, number> = {};
   for (const row of data as { topic: string }[]) {
-    counts[row.topic] = (counts[row.topic] ?? 0) + 1;
+    // Translate Supabase short name → CFATopic enum value so callers can look up by topic.id
+    const key = SUPABASE_TO_CFTOPIC[row.topic] ?? row.topic;
+    counts[key] = (counts[key] ?? 0) + 1;
   }
   return counts;
 }

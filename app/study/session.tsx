@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, Animated, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AnswerOption } from '@/components/ui/answer-option';
@@ -34,6 +34,8 @@ export default function SessionScreen() {
   const [sessionDone, setSessionDone] = useState(false);
   const [score, setScore] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [wrongExpanded, setWrongExpanded] = useState(false);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const { recordAttempt } = useProgressContext();
   const { recordStudySession } = useStreak();
@@ -94,13 +96,26 @@ export default function SessionScreen() {
       setCurrentIndex((i) => i + 1);
       setSelectedAnswer(null);
       setRevealed(false);
+      setWrongExpanded(false);
+      fadeAnim.setValue(0);
+    }
+  }
+
+  function handleToggleWrongExp() {
+    if (!wrongExpanded) {
+      setWrongExpanded(true);
+      Animated.timing(fadeAnim, { toValue: 1, duration: 220, useNativeDriver: true }).start();
+    } else {
+      Animated.timing(fadeAnim, { toValue: 0, duration: 180, useNativeDriver: true }).start(() =>
+        setWrongExpanded(false)
+      );
     }
   }
 
   if (loading) {
     return (
       <SafeAreaView style={styles.safe}>
-        <ActivityIndicator style={{ flex: 1 }} color={DARK.gold} />
+        <ActivityIndicator style={{ flex: 1 }} color={theme.gold} />
       </SafeAreaView>
     );
   }
@@ -127,7 +142,7 @@ export default function SessionScreen() {
           <Text style={styles.doneTitle}>Session Complete</Text>
           <Text style={styles.doneScore}>{score} / {questions.length}</Text>
           <Text style={[styles.doneAccuracy, {
-            color: accuracy >= 70 ? DARK.correct : accuracy >= 50 ? DARK.gold : DARK.incorrect,
+            color: accuracy >= 70 ? theme.correct : accuracy >= 50 ? theme.gold : theme.incorrect,
           }]}>
             {accuracy}% accuracy
           </Text>
@@ -139,7 +154,7 @@ export default function SessionScreen() {
     );
   }
 
-  const topicColor = topicMeta ? CFAColors.topic[topicMeta.colorKey] : DARK.gold;
+  const topicColor = topicMeta ? CFAColors.topic[topicMeta.colorKey] : theme.gold;
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -203,6 +218,30 @@ export default function SessionScreen() {
           </View>
         )}
 
+        {/* Why was my answer wrong? */}
+        {revealed &&
+          selectedAnswer !== null &&
+          selectedAnswer !== currentQuestion.correctAnswer &&
+          currentQuestion.wrongAnswerExplanations[selectedAnswer] != null && (
+            <>
+              <Pressable style={styles.wrongExpBtn} onPress={handleToggleWrongExp}>
+                <Text style={styles.wrongExpBtnText}>
+                  Why is {selectedAnswer} wrong?
+                </Text>
+                <Text style={styles.wrongExpChevron}>{wrongExpanded ? '▲' : '▼'}</Text>
+              </Pressable>
+
+              {wrongExpanded && (
+                <Animated.View style={[styles.wrongExpCard, { opacity: fadeAnim }]}>
+                  <Text style={styles.wrongExpLabel}>Option {selectedAnswer}</Text>
+                  <Text style={styles.wrongExpText}>
+                    {currentQuestion.wrongAnswerExplanations[selectedAnswer]}
+                  </Text>
+                </Animated.View>
+              )}
+            </>
+          )}
+
         {/* Next button */}
         {revealed && (
           <Pressable style={styles.goldBtn} onPress={handleNext}>
@@ -231,6 +270,20 @@ function makeStyles(t: Theme) {
     explanationBox: { backgroundColor: t.card, borderWidth: 1, borderColor: t.border, borderRadius: 14, padding: 16, gap: 8 },
     explanationTitle: { fontSize: 11, fontWeight: '700', color: t.gold, textTransform: 'uppercase', letterSpacing: 1 },
     explanationText: { fontSize: 14, lineHeight: 22, color: t.textSecondary },
+    wrongExpBtn: {
+      flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+      borderWidth: 1, borderColor: '#C9A84C44', borderRadius: 12,
+      paddingHorizontal: 16, paddingVertical: 13, backgroundColor: t.card,
+    },
+    wrongExpBtnText: { fontSize: 14, fontWeight: '600', color: '#C9A84C' },
+    wrongExpChevron: { fontSize: 11, color: '#C9A84C' },
+    wrongExpCard: {
+      backgroundColor: '#1e1800', borderLeftWidth: 3, borderLeftColor: '#C9A84C',
+      borderWidth: 1, borderColor: '#C9A84C33', borderRadius: 12,
+      padding: 16, gap: 6,
+    },
+    wrongExpLabel: { fontSize: 11, fontWeight: '700', color: '#C9A84C', textTransform: 'uppercase', letterSpacing: 1 },
+    wrongExpText: { fontSize: 14, lineHeight: 22, color: '#d4b87a' },
     goldBtn: { backgroundColor: t.gold, borderRadius: 14, paddingVertical: 17, alignItems: 'center' },
     goldBtnText: { color: '#0d0f14', fontSize: 16, fontWeight: '800', letterSpacing: 0.3 },
     empty: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 16, padding: 40 },
