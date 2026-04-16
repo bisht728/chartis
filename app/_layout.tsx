@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { router, Stack } from 'expo-router';
+import { Redirect, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
@@ -12,24 +12,22 @@ export const unstable_settings = {
 };
 
 export default function RootLayout() {
-  const [ready, setReady] = useState(false);
+  // null = still loading, true/false = resolved
+  const [isOnboarded, setIsOnboarded] = useState<boolean | null>(null);
 
   useEffect(() => {
     AsyncStorage.getItem('chartis:onboarded').then((val) => {
-      setReady(true);
-      if (val !== 'true') router.replace('/onboarding');
+      setIsOnboarded(val === 'true');
     });
   }, []);
 
-  if (!ready) return null;
-
   return (
     <ProgressProvider>
+      {isOnboarded === false && <Redirect href="/onboarding" />}
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: DARK.bg } }}>
         <Stack.Screen name="onboarding" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="study" />
-        <Stack.Screen name="topics" />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
       </Stack>
       <StatusBar style="light" />
