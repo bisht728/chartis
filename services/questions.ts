@@ -1,5 +1,15 @@
+import { TOPIC_METADATA } from '@/data/topics';
 import { supabase } from '@/lib/supabase';
 import { AnswerKey, CFATopic, Difficulty, Question } from '@/types';
+
+// Supabase stores short names (e.g. "Quant") — map to/from CFATopic enum values
+const SUPABASE_TO_CFTOPIC = Object.fromEntries(
+  TOPIC_METADATA.map((t) => [t.shortName, t.id])
+) as Record<string, CFATopic>;
+
+const CFTOPIC_TO_SUPABASE = Object.fromEntries(
+  TOPIC_METADATA.map((t) => [t.id, t.shortName])
+) as Record<string, string>;
 
 // Shape of a row in the Supabase questions table
 interface SupabaseQuestion {
@@ -36,7 +46,7 @@ const DIFFICULTY_MAP: Record<'easy' | 'medium' | 'hard', Difficulty> = {
 function mapRow(row: SupabaseQuestion): Question {
   return {
     id: String(row.id),
-    topic: row.topic as CFATopic,
+    topic: SUPABASE_TO_CFTOPIC[row.topic] ?? (row.topic as CFATopic),
     subtopic: row.module,
     los: `M${row.module_number}`,
     difficulty: DIFFICULTY_MAP[row.difficulty],
@@ -56,7 +66,7 @@ function mapRow(row: SupabaseQuestion): Question {
 export async function fetchQuestions(filters: QuestionFilters = {}): Promise<Question[]> {
   let query = supabase.from('questions').select('*');
 
-  if (filters.topic)      query = query.eq('topic', filters.topic);
+  if (filters.topic)      query = query.eq('topic', CFTOPIC_TO_SUPABASE[filters.topic] ?? filters.topic);
   if (filters.module)     query = query.eq('module', filters.module);
   if (filters.type)       query = query.eq('type', filters.type);
   if (filters.difficulty) query = query.eq('difficulty', filters.difficulty);
@@ -75,6 +85,41 @@ export async function fetchQuestionById(id: string): Promise<Question | null> {
 
   if (error) return null;
   return mapRow(data as SupabaseQuestion);
+}
+
+export async function fetchModulesForTopic(topic: string): Promise<string[]> {
+  const supabaseTopic = CFTOPIC_TO_SUPABASE[topic] ?? topic;
+  const { data, error } = await supabase
+    .from('questions')
+    .select('module, module_number')
+    .eq('topic', supabaseTopic)
+    .order('module_number');
+
+  if (error) throw new Error(error.message);
+
+  // Deduplicate while preserving order
+  const seen = new Set<string>();
+  const modules: string[] = [];
+  for (const row of data as { module: string }[]) {
+    if (!seen.has(row.module)) {
+      seen.add(row.module);
+      modules.push(row.module);
+    }
+  }
+  return modules;
+}
+
+export async function fetchFilteredCount(filters: QuestionFilters): Promise<number> {
+  let query = supabase.from('questions').select('*', { count: 'exact', head: true });
+
+  if (filters.topic)      query = query.eq('topic', CFTOPIC_TO_SUPABASE[filters.topic] ?? filters.topic);
+  if (filters.module)     query = query.eq('module', filters.module);
+  if (filters.type)       query = query.eq('type', filters.type);
+  if (filters.difficulty) query = query.eq('difficulty', filters.difficulty);
+
+  const { count, error } = await query;
+  if (error) throw new Error(error.message);
+  return count ?? 0;
 }
 
 export async function fetchQuestionCountByTopic(): Promise<Record<string, number>> {

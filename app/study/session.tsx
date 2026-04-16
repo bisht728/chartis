@@ -7,14 +7,22 @@ import { AnswerOption } from '@/components/ui/answer-option';
 import { DARK, CFAColors } from '@/constants/theme';
 import { useProgressContext } from '@/context/progress-context';
 import { useStreak } from '@/hooks/use-streak';
-import { getRandomQuestions, getQuestionsByTopic } from '@/db/database';
+import { getRandomQuestions } from '@/db/database';
+import { fetchQuestions, QuestionFilters } from '@/services/questions';
 import { AnswerKey, CFATopic, Question } from '@/types';
 import { TOPIC_METADATA } from '@/data/topics';
 
-const SESSION_SIZE = 10;
+const DEFAULT_SESSION_SIZE = 10;
 
 export default function SessionScreen() {
-  const { topic } = useLocalSearchParams<{ topic?: string }>();
+  const { topic, module: moduleParam, difficulty, type, size } =
+    useLocalSearchParams<{
+      topic?: string;
+      module?: string;
+      difficulty?: string;
+      type?: string;
+      size?: string;
+    }>();
 
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -28,14 +36,30 @@ export default function SessionScreen() {
   const { recordStudySession } = useStreak();
 
   useEffect(() => {
-    const load = topic
-      ? getQuestionsByTopic(topic as CFATopic)
-      : getRandomQuestions(SESSION_SIZE);
+    const sessionSize = size ? parseInt(size, 10) : DEFAULT_SESSION_SIZE;
+
+    let load: Promise<Question[]>;
+    if (topic) {
+      const filters: QuestionFilters = { topic };
+      if (moduleParam) filters.module     = moduleParam;
+      if (difficulty)  filters.difficulty = difficulty as QuestionFilters['difficulty'];
+      if (type)        filters.type       = type as QuestionFilters['type'];
+      load = fetchQuestions(filters);
+    } else {
+      load = getRandomQuestions(sessionSize);
+    }
+
     load.then((qs) => {
-      setQuestions(qs.slice(0, SESSION_SIZE));
+      // Shuffle so the same filters don't always give the same order
+      const shuffled = [...qs];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      setQuestions(shuffled.slice(0, sessionSize));
       setLoading(false);
     });
-  }, [topic]);
+  }, [topic, moduleParam, difficulty, type, size]);
 
   const currentQuestion = questions[currentIndex] ?? null;
   const topicMeta = currentQuestion
