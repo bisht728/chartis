@@ -5,7 +5,12 @@
       "Bash(npx expo:*)",
       "Bash(npm start:*)",
       "Bash(npm uninstall:*)",
-      "Bash(grep -r \"supabase\" /c/Users/ompan/chartis-1 --include=\"*.ts\" --include=\"*.tsx\" --include=\"*.json\" ! -path \"*/node_modules/*\")"
+      "Bash(grep -r \"supabase\" /c/Users/ompan/chartis-1 --include=\"*.ts\" --include=\"*.tsx\" --include=\"*.json\" ! -path \"*/node_modules/*\")",
+      "Bash(netstat -ano)",
+      "Bash(findstr :8081)",
+      "Bash(findstr LISTENING)",
+      "Bash(powershell -Command \"Stop-Process -Id 6660 -Force\")",
+      "Bash(echo \"exit: $?\")"
     ]
   }
 }

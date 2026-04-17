@@ -18,6 +18,11 @@ export const SEED_QUESTIONS: Question[] = [
     correctAnswer: 'C',
     hint: 'Focus on what "material nonpublic" means and the core prohibition of Standard II(A).',
     explanation: 'Standard II(A) prohibits members and candidates from acting or causing others to act on material nonpublic information. The analyst must not trade, and must not tip others to trade, until the information becomes public. Sharing it with clients (D) would also violate the standard by causing others to trade.',
+    wrongAnswerExplanations: {
+      A: 'Trading on material nonpublic information is the exact violation Standard II(A) prohibits — this would constitute insider trading.',
+      B: 'CFA Institute compliance is not the correct body to notify; the analyst should consult their firm\'s compliance department and simply refrain from trading.',
+      D: 'Sharing material nonpublic information with clients — even equally — would cause others to trade on it, which is also a violation of Standard II(A).',
+    },
   },
   {
     id: 'eth-002',
@@ -35,6 +40,11 @@ export const SEED_QUESTIONS: Question[] = [
     correctAnswer: 'B',
     hint: 'Think about which standard requires disclosure when a personal financial interest could impair objectivity.',
     explanation: "Standard VI(A) requires members to make full and fair disclosure of all matters that could reasonably be expected to impair their independence and objectivity. Personal ownership in a recommended security is a classic conflict of interest that must be disclosed to clients and the employer.",
+    wrongAnswerExplanations: {
+      A: 'Standard III(B) — Fair Dealing concerns treating all clients fairly when disseminating recommendations, not the disclosure of personal conflicts.',
+      C: 'Standard I(C) — Misrepresentation covers making false or misleading statements; not disclosing a conflict is a separate issue addressed by Standard VI(A).',
+      D: 'Standard V(A) — Diligence and Reasonable Basis requires having a sound basis for recommendations, which is unrelated to conflict-of-interest disclosure.',
+    },
   },
 
   // --- Quantitative Methods ---
@@ -54,6 +64,11 @@ export const SEED_QUESTIONS: Question[] = [
     correctAnswer: 'B',
     hint: 'Use the compound interest formula: FV = PV × (1 + r/m)^(m×n). With r = 6%, m = 12, n = 3.',
     explanation: 'FV = 5,000 × (1 + 0.06/12)^(12×3) = 5,000 × (1.005)^36 = 5,000 × 1.19668 ≈ $5,983. The closest answer is B ($5,971 reflects correct rounding with exact computation: 5,000 × 1.19668 = $5,983 — note exam questions use precise rounding; always use your financial calculator directly).',
+    wrongAnswerExplanations: {
+      A: '$5,955 results from using simple interest (5,000 × 0.06 × 3 = 900 + 5,000) rather than monthly compounding.',
+      C: '$6,000 assumes simple annual interest of exactly 6% × 3 years without compounding effects.',
+      D: '$5,900 underestimates the effect of compounding — likely from using an incorrect period count.',
+    },
   },
   {
     id: 'qnt-002',
@@ -71,6 +86,11 @@ export const SEED_QUESTIONS: Question[] = [
     correctAnswer: 'A',
     hint: 'Standardize the value: z = (x − μ) / σ. Then look up the z-table.',
     explanation: 'z = (−5% − 10%) / 15% = −1.0. For z = −1, the cumulative probability is approximately 15.87% ≈ 16%. One standard deviation below the mean captures roughly 16% of the distribution in the lower tail.',
+    wrongAnswerExplanations: {
+      B: '2.5% corresponds to z = −2 (two standard deviations below the mean). Here z = −1, so this underestimates the probability.',
+      C: '32% represents the total probability in both tails beyond ±1 standard deviation. We only want the lower tail, which is half of that: ~16%.',
+      D: '5% corresponds roughly to z = −1.645 (one-tailed). Our z-score of −1.0 gives a higher probability than 5%.',
+    },
   },
 
   // --- Fixed Income ---
@@ -90,6 +110,10 @@ export const SEED_QUESTIONS: Question[] = [
     correctAnswer: 'A',
     hint: 'When the coupon rate < yield, the bond trades at a discount. Discount all cash flows at 8%.',
     explanation: 'Price = PV of coupons + PV of par. Coupons: $60 × [1 − (1.08)^−5] / 0.08 = $60 × 3.9927 = $239.56. Par: $1,000 / (1.08)^5 = $680.58. Price ≈ $920. Since the coupon (6%) is below the market yield (8%), the bond trades at a discount.',
+    wrongAnswerExplanations: {
+      B: '$1,000 (par) is only the price when the coupon rate equals the market yield. Here, 6% < 8%, so the bond must trade at a discount.',
+      C: '$1,080 would be a premium price, which occurs when coupon rate > market yield — the opposite of this situation.',
+    },
   },
   {
     id: 'fi-002',
@@ -107,6 +131,11 @@ export const SEED_QUESTIONS: Question[] = [
     correctAnswer: 'B',
     hint: 'Use: ΔP/P ≈ −Duration × Δy + ½ × Convexity × (Δy)². The convexity adjustment is always positive.',
     explanation: 'ΔP/P ≈ −7.5 × 0.01 + ½ × 80 × (0.01)² = −0.075 + 0.004 = −0.071 = −7.1%. The convexity term (½ × 80 × 0.0001 = 0.004) reduces the price decline predicted by duration alone.',
+    wrongAnswerExplanations: {
+      A: '−7.5% uses duration alone without adding the convexity adjustment. Convexity always reduces the magnitude of price change.',
+      C: '−8.3% incorrectly subtracts the convexity adjustment instead of adding it. Convexity is always a positive correction to the duration estimate.',
+      D: '−6.9% likely uses an incorrect convexity calculation. The correct adjustment is +0.4%, bringing the estimate to −7.1%, not −6.9%.',
+    },
   },
 
   // --- Equity Investments ---
@@ -126,6 +155,11 @@ export const SEED_QUESTIONS: Question[] = [
     correctAnswer: 'B',
     hint: 'Use the Gordon Growth Model: P = D₁ / (r − g). Remember D₁ = D₀ × (1 + g).',
     explanation: 'D₁ = $2.00 × 1.05 = $2.10. P = D₁ / (r − g) = $2.10 / (0.10 − 0.05) = $2.10 / 0.05 = $42.00. A common mistake is using D₀ ($2.00) instead of the next expected dividend D₁.',
+    wrongAnswerExplanations: {
+      A: '$40.00 results from using D₀ ($2.00) instead of D₁ ($2.10) in the Gordon Growth Model: $2.00 / 0.05 = $40. Always use next year\'s dividend.',
+      C: '$20.00 results from ignoring growth entirely: $2.00 / 0.10 = $20. The growth rate must be subtracted from the discount rate.',
+      D: '$44.00 is not a standard result from the Gordon Growth Model with these inputs — likely an arithmetic error in applying the formula.',
+    },
   },
   {
     id: 'eq-002',
@@ -143,6 +177,11 @@ export const SEED_QUESTIONS: Question[] = [
     correctAnswer: 'C',
     hint: 'Semi-strong efficiency states that prices reflect all publicly available information. What does it NOT reflect?',
     explanation: 'Semi-strong form efficiency implies that all publicly available information is already priced in. Therefore, technical analysis (A) and fundamental analysis of public data (B) cannot generate consistent excess returns. Only private (insider) information (C) could theoretically be exploited — though doing so is illegal. Answer D is wrong because private information exploitation remains theoretically possible.',
+    wrongAnswerExplanations: {
+      A: 'Technical analysis uses historical price and volume data, which is publicly available. Semi-strong efficiency means this is already reflected in prices.',
+      B: 'Financial statements and news are public information. Under semi-strong efficiency, these are already incorporated into stock prices.',
+      D: 'Excess returns are theoretically possible with non-public (insider) information even in a semi-strong efficient market — the market is not strong-form efficient.',
+    },
   },
 
   // --- Portfolio Management ---
@@ -162,6 +201,11 @@ export const SEED_QUESTIONS: Question[] = [
     correctAnswer: 'A',
     hint: 'Portfolio expected return is simply the weighted average of the individual returns.',
     explanation: 'E(Rp) = w_A × E(R_A) + w_B × E(R_B) = 0.40 × 8% + 0.60 × 14% = 3.2% + 8.4% = 11.6%. Note: the correlation and standard deviations are relevant only for computing portfolio risk (variance), not the expected return.',
+    wrongAnswerExplanations: {
+      B: '12.0% is a simple average of 8% and 14%, ignoring the actual weights of 40% and 60%.',
+      C: '13.0% over-weights Asset B — perhaps using 50/50 weights or only Asset B\'s return. The 40/60 weighting must be applied.',
+      D: '10.4% over-weights Asset A. Double-check: 0.40 × 8% = 3.2% and 0.60 × 14% = 8.4%, totaling 11.6%.',
+    },
   },
   {
     id: 'pm-002',
@@ -179,5 +223,10 @@ export const SEED_QUESTIONS: Question[] = [
     correctAnswer: 'C',
     hint: 'The efficient frontier defines all optimal risk-return combinations. The investor\'s preferences determine which point on the frontier is best for them.',
     explanation: 'Each investor has a set of indifference curves reflecting their risk-return preferences. The optimal portfolio is where the highest attainable indifference curve is tangent to the efficient frontier (C). The market portfolio (D) is only the optimal risky portfolio when a risk-free asset exists (Capital Market Line context), but the specific portfolio held also depends on the investor\'s risk aversion.',
+    wrongAnswerExplanations: {
+      A: 'The highest-return portfolio on the frontier is only optimal for an investor with no risk aversion at all. Risk-averse investors will trade off some return for lower risk.',
+      B: 'The minimum-variance portfolio suits the most risk-averse investor, but not all risk-averse investors — the optimal point depends on the degree of risk aversion.',
+      D: 'The market portfolio is optimal as the risky component when a risk-free asset exists, but the overall optimal portfolio (mix of market + risk-free) still varies by individual risk preference.',
+    },
   },
 ];
