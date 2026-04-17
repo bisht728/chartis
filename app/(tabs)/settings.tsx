@@ -79,12 +79,12 @@ export default function SettingsScreen() {
 
         <Text style={styles.sectionLabel}>Account</Text>
         <View style={styles.section}>
-          <Pressable style={styles.dangerRow} onPress={confirmReset}>
+          <Pressable style={({ hovered }) => [styles.dangerRow, hovered && styles.dangerRowHovered]} onPress={confirmReset}>
             <Text style={styles.dangerLabel}>Reset All Progress</Text>
             <Text style={styles.rowHint}>Clears answers, accuracy, and streak</Text>
           </Pressable>
           <View style={styles.divider} />
-          <Pressable style={styles.dangerRow} onPress={confirmSignOut}>
+          <Pressable style={({ hovered }) => [styles.dangerRow, hovered && styles.dangerRowHovered]} onPress={confirmSignOut}>
             <Text style={styles.dangerLabel}>Sign Out</Text>
             <Text style={styles.rowHint}>Return to onboarding</Text>
           </Pressable>
@@ -125,7 +125,8 @@ function makeStyles(t: Theme) {
     value: { fontSize: 15, color: t.textSecondary },
     themeControl: { flexDirection: 'row', alignItems: 'center', gap: 10 },
     divider: { height: 1, backgroundColor: t.border, marginHorizontal: 16 },
-    dangerRow: { paddingHorizontal: 16, paddingVertical: 14, gap: 2 },
+    dangerRow: { paddingHorizontal: 16, paddingVertical: 14, gap: 2, cursor: 'pointer' as any },
+    dangerRowHovered: { backgroundColor: t.incorrect + '18' },
     dangerLabel: { fontSize: 15, color: t.incorrect, fontWeight: '600' },
     rowHint: { fontSize: 12, color: t.textMuted },
   });

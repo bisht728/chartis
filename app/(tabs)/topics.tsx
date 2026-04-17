@@ -41,52 +41,60 @@ export default function TopicsScreen() {
 
         {/* Topic grid */}
         <View style={styles.grid}>
-          {topics.map((topic) => {
-            const color = CFAColors.topic[topic.colorKey] ?? theme.gold;
-            const tp = state.topicProgress[topic.id];
-            const pct = tp?.accuracyPercent ?? 0;
+          {Array.from({ length: Math.ceil(topics.length / 2) }, (_, rowIdx) => (
+            <View key={rowIdx} style={styles.gridRow}>
+              {topics.slice(rowIdx * 2, rowIdx * 2 + 2).map((topic) => {
+                const color = CFAColors.topic[topic.colorKey] ?? theme.gold;
+                const tp = state.topicProgress[topic.id];
+                const pct = tp?.accuracyPercent ?? 0;
 
-            return (
-              <Pressable
-                key={topic.id}
-                style={styles.card}
-                onPress={() =>
-                  router.push({ pathname: '/topics/[topic]', params: { topic: topic.id } })
-                }
-              >
-                <View style={[styles.colorBar, { backgroundColor: color }]} />
-                <View style={styles.cardContent}>
-                  {/* Top: name + ring */}
-                  <View style={styles.cardTop}>
-                    <Text style={styles.topicName} numberOfLines={3}>{topic.displayName}</Text>
-                    <ProgressRing
-                      percent={pct}
-                      size={38}
-                      strokeWidth={4}
-                      color={color}
-                      trackColor={theme.border}
-                      showLabel={pct > 0}
-                    />
-                  </View>
+                return (
+                  <Pressable
+                    key={topic.id}
+                    style={({ hovered }) => [styles.card, hovered && styles.cardHovered]}
+                    onPress={() =>
+                      router.push({ pathname: '/topics/[topic]', params: { topic: topic.id } })
+                    }
+                  >
+                    <View style={[styles.colorBar, { backgroundColor: color }]} />
+                    <View style={styles.cardContent}>
+                      {/* Top: name + ring */}
+                      <View style={styles.cardTop}>
+                        <Text style={styles.topicName} numberOfLines={3}>{topic.displayName}</Text>
+                        <ProgressRing
+                          percent={pct}
+                          size={38}
+                          strokeWidth={4}
+                          color={color}
+                          trackColor={theme.border}
+                          showLabel={pct > 0}
+                        />
+                      </View>
 
-                  {/* Bottom: weight + question count */}
-                  <View style={styles.meta}>
-                    <View style={[styles.weightBadge, { backgroundColor: color + '1A', borderColor: color + '44' }]}>
-                      <Text style={[styles.weightText, { color }]}>{topic.examWeight}</Text>
+                      {/* Bottom: weight + question count */}
+                      <View style={styles.meta}>
+                        <View style={[styles.weightBadge, { backgroundColor: color + '1A', borderColor: color + '44' }]}>
+                          <Text style={[styles.weightText, { color }]}>{topic.examWeight}</Text>
+                        </View>
+                        {topic.questionCount > 0 && (
+                          <Text style={styles.count}>{topic.questionCount}Q</Text>
+                        )}
+                      </View>
                     </View>
-                    {topic.questionCount > 0 && (
-                      <Text style={styles.count}>{topic.questionCount}Q</Text>
-                    )}
-                  </View>
-                </View>
-              </Pressable>
-            );
-          })}
+                  </Pressable>
+                );
+              })}
+              {/* Placeholder keeps the left card at 50% width when row has only one item */}
+              {topics.slice(rowIdx * 2, rowIdx * 2 + 2).length === 1 && (
+                <View style={styles.cardPlaceholder} />
+              )}
+            </View>
+          ))}
         </View>
 
         {/* Analytics toggle */}
         <Pressable
-          style={[styles.analyticsToggle, { borderColor: showAnalytics ? theme.gold : theme.border }]}
+          style={({ hovered }) => [styles.analyticsToggle, { borderColor: showAnalytics ? theme.gold : theme.border }, hovered && styles.analyticsToggleHovered]}
           onPress={() => setShowAnalytics((v) => !v)}
         >
           <Text style={[styles.analyticsToggleText, { color: showAnalytics ? theme.gold : theme.textSecondary }]}>
@@ -165,11 +173,15 @@ function makeStyles(t: Theme) {
     title: { fontSize: 28, fontWeight: '800', color: t.text },
     subtitle: { fontSize: 13, color: t.textSecondary },
 
-    grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
+    grid: { gap: 12 },
+    gridRow: { flexDirection: 'row', gap: 12 },
     card: {
-      width: '47%', backgroundColor: t.card, borderRadius: 14,
+      flex: 1, backgroundColor: t.card, borderRadius: 14,
       borderWidth: 1, borderColor: t.border, overflow: 'hidden',
+      cursor: 'pointer' as any,
     },
+    cardHovered: { borderColor: t.gold + '66', backgroundColor: t.cardAlt },
+    cardPlaceholder: { flex: 1 },
     colorBar: { height: 3 },
     cardContent: { padding: 12, gap: 10 },
     cardTop: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 6 },
@@ -182,8 +194,9 @@ function makeStyles(t: Theme) {
     analyticsToggle: {
       flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
       borderWidth: 1, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 13,
-      backgroundColor: t.card,
+      backgroundColor: t.card, cursor: 'pointer' as any,
     },
+    analyticsToggleHovered: { backgroundColor: t.cardAlt },
     analyticsToggleText: { fontSize: 14, fontWeight: '600' },
     analyticsChevron: { fontSize: 11 },
 

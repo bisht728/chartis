@@ -166,7 +166,7 @@ export default function DashboardScreen() {
         </View>
 
         {/* ── Streak card — full width, with progress toward next milestone ── */}
-        <Pressable style={styles.streakCard} onPress={() => router.push('/(tabs)/progress')}>
+        <Pressable style={({ hovered }) => [styles.streakCard, hovered && styles.cardHovered]} onPress={() => router.push('/(tabs)/progress')}>
           <View style={styles.streakLeft}>
             <Text style={styles.streakFire}>🔥</Text>
             <View>
@@ -240,7 +240,7 @@ export default function DashboardScreen() {
         {/* ── Continue card — topic + per-topic stats ── */}
         {continueTopic && (
           <Pressable
-            style={styles.continueCard}
+            style={({ hovered }) => [styles.continueCard, hovered && styles.cardHovered]}
             onPress={() =>
               router.push({ pathname: '/study/session', params: { topic: continueTopic.id } })
             }
@@ -263,59 +263,63 @@ export default function DashboardScreen() {
         {/* ── Topic grid — recently attempted first, then defaults ── */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>TOPICS</Text>
-          <Pressable onPress={() => router.push('/(tabs)/topics')}>
+          <Pressable style={({ hovered }) => [hovered && styles.sectionLinkHovered]} onPress={() => router.push('/(tabs)/topics')}>
             <Text style={styles.sectionLink}>See all</Text>
           </Pressable>
         </View>
 
         <View style={styles.topicsGrid}>
-          {dashboardTopics.map((meta) => {
-            const tp = state.topicProgress[meta.id];
-            const pct = tp?.accuracyPercent ?? 0;
-            const topicColor = CFAColors.topic[meta.colorKey] ?? theme.gold;
+          {[0, 1].map((rowIdx) => (
+            <View key={rowIdx} style={styles.topicsRow}>
+              {dashboardTopics.slice(rowIdx * 2, rowIdx * 2 + 2).map((meta) => {
+                const tp = state.topicProgress[meta.id];
+                const pct = tp?.accuracyPercent ?? 0;
+                const topicColor = CFAColors.topic[meta.colorKey] ?? theme.gold;
 
-            return (
-              <Pressable
-                key={meta.id}
-                style={styles.topicCard}
-                onPress={() =>
-                  router.push({ pathname: '/topics/[topic]', params: { topic: meta.id } })
-                }
-              >
-                <View style={styles.topicCardTop}>
-                  <View
-                    style={[
-                      styles.topicIconDot,
-                      { backgroundColor: topicColor + '33', borderColor: topicColor + '55' },
-                    ]}
+                return (
+                  <Pressable
+                    key={meta.id}
+                    style={({ hovered }) => [styles.topicCard, hovered && styles.cardHovered]}
+                    onPress={() =>
+                      router.push({ pathname: '/topics/[topic]', params: { topic: meta.id } })
+                    }
                   >
-                    <Text style={[styles.topicIconText, { color: topicColor }]}>
-                      {meta.shortName.slice(0, 2).toUpperCase()}
+                    <View style={styles.topicCardTop}>
+                      <View
+                        style={[
+                          styles.topicIconDot,
+                          { backgroundColor: topicColor + '33', borderColor: topicColor + '55' },
+                        ]}
+                      >
+                        <Text style={[styles.topicIconText, { color: topicColor }]}>
+                          {meta.shortName.slice(0, 2).toUpperCase()}
+                        </Text>
+                      </View>
+                      <ProgressRing
+                        percent={pct}
+                        size={36}
+                        strokeWidth={4}
+                        color={topicColor}
+                        trackColor={theme.border}
+                        showLabel={pct > 0}
+                      />
+                    </View>
+                    <Text style={styles.topicCardName} numberOfLines={2}>
+                      {meta.displayName}
                     </Text>
-                  </View>
-                  <ProgressRing
-                    percent={pct}
-                    size={36}
-                    strokeWidth={4}
-                    color={topicColor}
-                    trackColor={theme.border}
-                    showLabel={pct > 0}
-                  />
-                </View>
-                <Text style={styles.topicCardName} numberOfLines={2}>
-                  {meta.displayName}
-                </Text>
-                <Text style={styles.topicCardStatus} numberOfLines={1}>
-                  {topicStatus(tp)}
-                </Text>
-              </Pressable>
-            );
-          })}
+                    <Text style={styles.topicCardStatus} numberOfLines={1}>
+                      {topicStatus(tp)}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          ))}
         </View>
 
         {/* ── Quick start ── */}
         <Pressable
-          style={styles.startBtn}
+          style={({ hovered }) => [styles.startBtn, hovered && styles.startBtnHovered]}
           onPress={() => router.push('/study/session')}
         >
           <Text style={styles.startBtnText}>Start Practice Session</Text>
@@ -453,9 +457,10 @@ function makeStyles(t: Theme) {
     sectionLink: { fontSize: 13, color: t.gold, fontWeight: '600' },
 
     // Topic grid
-    topicsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
+    topicsGrid: { gap: 12 },
+    topicsRow: { flexDirection: 'row', gap: 12 },
     topicCard: {
-      width: '47%', backgroundColor: t.card, borderWidth: 1,
+      flex: 1, backgroundColor: t.card, borderWidth: 1,
       borderColor: t.border, borderRadius: 14, padding: 14, gap: 6,
     },
     topicCardTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
@@ -471,7 +476,17 @@ function makeStyles(t: Theme) {
     startBtn: {
       backgroundColor: t.gold, borderRadius: 14,
       paddingVertical: 17, alignItems: 'center', marginTop: 4,
+      cursor: 'pointer' as any,
     },
+    startBtnHovered: { opacity: 0.88 },
     startBtnText: { color: '#0d0f14', fontSize: 16, fontWeight: '800', letterSpacing: 0.3 },
+
+    // Hover states (web only — cursor/pointer ignored on native)
+    cardHovered: {
+      borderColor: t.gold + '66',
+      backgroundColor: t.cardAlt,
+      cursor: 'pointer' as any,
+    },
+    sectionLinkHovered: { opacity: 0.75, cursor: 'pointer' as any },
   });
 }
